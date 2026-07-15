@@ -5,7 +5,11 @@
 package arbolE;
 
 import java.awt.Image;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -18,9 +22,55 @@ public class Frrameinterfaz extends javax.swing.JFrame {
     /**
      * Creates new form Frrameinterfaz
      */
+    String nPolaca;
+    int temp;
+    FrameCuadruplos cuadruplos;
+    public void inOrden(Nodo n){
+        if(n!=null){
+            inOrden(n.getDerecho());
+            jTextInOrden.append(n.getDato()+"\n");
+            
+            inOrden(n.getIzquierdo());
+        }
+    }
+    
+    public void preOrden(Nodo n){
+        if (n!=null) {
+           jTextPreOrden.append(n.getDato()+"\n");
+           nPolaca += jNotacionPolaca.getText()+ n.getDato()+" ";
+           jNotacionPolaca.setText(jNotacionPolaca.getText()+ n.getDato()+" ");
+           
+           preOrden(n.getIzquierdo());
+           preOrden(n.getDerecho());
+ 
+        }
+    }
+    
+    PanelGrafo panel = new PanelGrafo(
+    Arbol.convertirAGAD(arbolExpresion),
+    colorNodo,
+    radioNodo,
+    colorLinea,
+    grosorLinea
+    );
+
+    ventana.add(panel);
+    ventana.setSize(600, 400);
+    ventana.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    ventana.setLocationRelativeTo(null); // Centrar en pantalla
+    ventana.setVisible(true);
+    
+    public void postOrden(Nodo n){
+        if(n!=null){
+            postOrden(n.getDerecho());
+            postOrden(n.getIzquierdo());
+            jTextPostOrden.append(n.getDato()+"\n");
+        }
+    }
+    
     public Frrameinterfaz() {
     initComponents();
-
+    
     // Imagen 1
     ImageIcon icono = new ImageIcon(getClass().getResource("/Imagenes/escudo_itt_grande.png"));
     Image imagen = icono.getImage();
@@ -40,6 +90,42 @@ public class Frrameinterfaz extends javax.swing.JFrame {
     Image imagenEscalada3 = imagen3.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
     jLabel12.setIcon(new ImageIcon(imagenEscalada3));
     }
+    
+   public void intermedio(Nodo n){
+      if(n!=null){
+          intermedio(n.getIzquierdo());
+          intermedio(n.getDerecho());
+          
+      if(n.getIzquierdo()==null && n.getDerecho()==null){
+          n.setLugar(n.getDato()+" ");
+          n.setCodigoIntermedio("");
+      }else{
+          if(n.getDato().equals("+")|| n.getDato().equals("*")
+                  ||n.getDato().equals("-")||n.getDato().equals("/")){
+              temp++;
+              n.setLugar("T" + temp);
+              Nodo izquierdo = n.getIzquierdo();
+              Nodo derecho = n.getDerecho();
+              String codigoI = "";
+              codigoI = izquierdo.getCodigoIntermedio()+ " " + derecho.getCodigoIntermedio() + 
+                      " " + n.getLugar()+ "="+izquierdo.getLugar()+
+                     "" + n.getDato()+ " " +derecho.getLugar();
+              
+              n.setCodigoIntermedio(codigoI+"\n");
+              
+              }else{
+                      if(n.getDato().equals("=")){
+                      String codigoI= "";
+                      Nodo izquierdo = n.getIzquierdo();
+                      Nodo derecho = n.getDerecho();
+                      codigoI = derecho.getDato()+ " "+
+                              izquierdo.getLugar()+ " = "+temp+ "\n";
+                      n.setCodigoIntermedio(codigoI);
+                      }//EQUALS =
+      }//equals +-*/
+  }//getDerecho getIzquierdo
+  }//n!null
+  }//intermedio
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -58,15 +144,15 @@ public class Frrameinterfaz extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        jTextPreOrden = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
+        jTextInOrden = new javax.swing.JTextArea();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea3 = new javax.swing.JTextArea();
+        jTextPostOrden = new javax.swing.JTextArea();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jTextArea4 = new javax.swing.JTextArea();
+        jTextReglasSemanticas = new javax.swing.JTextArea();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jTextArea5 = new javax.swing.JTextArea();
+        jTextTresDirecciones = new javax.swing.JTextArea();
         jPanel2 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -75,10 +161,13 @@ public class Frrameinterfaz extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        jNotacionPolaca = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Arbol de expresiones - LyA2");
@@ -133,30 +222,30 @@ public class Frrameinterfaz extends javax.swing.JFrame {
         jButton1.setText("Compila");
         jButton1.addActionListener(this::jButton1ActionPerformed);
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        jTextPreOrden.setColumns(20);
+        jTextPreOrden.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jTextPreOrden.setRows(5);
+        jScrollPane1.setViewportView(jTextPreOrden);
 
-        jTextArea2.setColumns(20);
-        jTextArea2.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jTextArea2.setRows(5);
-        jScrollPane2.setViewportView(jTextArea2);
+        jTextInOrden.setColumns(20);
+        jTextInOrden.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jTextInOrden.setRows(5);
+        jScrollPane2.setViewportView(jTextInOrden);
 
-        jTextArea3.setColumns(20);
-        jTextArea3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jTextArea3.setRows(5);
-        jScrollPane3.setViewportView(jTextArea3);
+        jTextPostOrden.setColumns(20);
+        jTextPostOrden.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jTextPostOrden.setRows(5);
+        jScrollPane3.setViewportView(jTextPostOrden);
 
-        jTextArea4.setColumns(20);
-        jTextArea4.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jTextArea4.setRows(5);
-        jScrollPane4.setViewportView(jTextArea4);
+        jTextReglasSemanticas.setColumns(20);
+        jTextReglasSemanticas.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jTextReglasSemanticas.setRows(5);
+        jScrollPane4.setViewportView(jTextReglasSemanticas);
 
-        jTextArea5.setColumns(20);
-        jTextArea5.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jTextArea5.setRows(5);
-        jScrollPane5.setViewportView(jTextArea5);
+        jTextTresDirecciones.setColumns(20);
+        jTextTresDirecciones.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jTextTresDirecciones.setRows(5);
+        jScrollPane5.setViewportView(jTextTresDirecciones);
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -186,15 +275,15 @@ public class Frrameinterfaz extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(65, 65, 65)
+                .addGap(40, 40, 40)
                 .addComponent(jLabel3)
-                .addGap(173, 173, 173)
+                .addGap(115, 115, 115)
                 .addComponent(jLabel4)
-                .addGap(167, 167, 167)
+                .addGap(104, 104, 104)
                 .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(179, 179, 179)
                 .addComponent(jLabel6)
-                .addGap(103, 103, 103)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel7)
                 .addGap(23, 23, 23))
         );
@@ -231,6 +320,11 @@ public class Frrameinterfaz extends javax.swing.JFrame {
         jButton4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jButton4.setText("TABLA DE SIMBOLOS");
 
+        jButton7.setBackground(new java.awt.Color(255, 102, 0));
+        jButton7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jButton7.setText("CUADRUPLOS");
+        jButton7.addActionListener(this::jButton7ActionPerformed);
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -239,14 +333,16 @@ public class Frrameinterfaz extends javax.swing.JFrame {
                 .addGap(16, 16, 16)
                 .addComponent(jLabel8)
                 .addGap(18, 18, 18)
-                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jNotacionPolaca, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jButton2)
                 .addGap(18, 18, 18)
                 .addComponent(jButton3)
                 .addGap(18, 18, 18)
                 .addComponent(jButton4)
-                .addContainerGap(145, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jButton7)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -254,12 +350,23 @@ public class Frrameinterfaz extends javax.swing.JFrame {
                 .addContainerGap(27, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jNotacionPolaca, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton2)
                     .addComponent(jButton3)
-                    .addComponent(jButton4))
+                    .addComponent(jButton4)
+                    .addComponent(jButton7))
                 .addGap(20, 20, 20))
         );
+
+        jButton5.setBackground(new java.awt.Color(255, 102, 0));
+        jButton5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jButton5.setText("Agente IA");
+        jButton5.addActionListener(this::jButton5ActionPerformed);
+
+        jButton6.setBackground(new java.awt.Color(255, 102, 0));
+        jButton6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jButton6.setText("OptimizarCI");
+        jButton6.addActionListener(this::jButton6ActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -269,24 +376,31 @@ public class Frrameinterfaz extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(14, 14, 14)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 838, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGap(18, 18, 18)
-                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextField1)
-                                .addGap(18, 18, 18)
-                                .addComponent(jButton1))
-                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jButton1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(jButton5)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jButton6))
+                                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))))
                     .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -299,7 +413,9 @@ public class Frrameinterfaz extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1)
-                    .addComponent(jLabel1))
+                    .addComponent(jLabel1)
+                    .addComponent(jButton5)
+                    .addComponent(jButton6))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
@@ -319,25 +435,174 @@ public class Frrameinterfaz extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-       String datos = jTextField1.getText().trim();
-
+        String datos = jTextField1.getText().trim();
+ 
         if (datos.isEmpty()) {
-            jTextArea4.setText("⚠ Ingresa una expresión antes de compilar.");
+            jTextReglasSemanticas.setText("⚠ Ingresa una expresión antes de compilar.");
             return;
         }
-
+ 
         // CAMBIO: usar ArbolEder en lugar de Arbol
         ArbolGerman a = new ArbolGerman();
         Nodo arbolExpresion = a.crear(datos);
-
+ 
         // Limpiar y mostrar reglas semánticas en jTextArea4
-        jTextArea4.setText("");
-        jTextArea4.append(a.getReglasEjecutadas());
+        jTextReglasSemanticas.setText("");
+        jTextReglasSemanticas.append(a.getReglasEjecutadas());
+ 
+        // Enviar las reglas semanticas generadas a un archivo de texto "reglasSemanticas.txt"
+        guardarReglasEnArchivo(a.getReglasEjecutadas());
     }//GEN-LAST:event_jButton1ActionPerformed
-
+    private void guardarReglasEnArchivo(String contenido) {
+        String ruta = obtenerRutaEscritorio() + java.io.File.separator + "reglasSemanticas.txt";
+        try (java.io.PrintWriter pw = new java.io.PrintWriter(
+                new java.io.FileWriter(ruta))) {
+            pw.print(contenido);
+            System.out.println("Archivo guardado en: " + ruta);
+        } catch (java.io.IOException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al guardar reglasSemanticas.txt: " + e.getMessage(),
+                    "Error de archivo",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private String obtenerRutaEscritorio() {
+        String home = System.getProperty("user.home");
+        String sep = java.io.File.separator;
+        String[] candidatos = {
+            home + sep + "Desktop",
+            home + sep + "OneDrive" + sep + "Desktop",
+            home + sep + "OneDrive" + sep + "Escritorio",
+            home + sep + "Escritorio"
+        };
+        for (String candidato : candidatos) {
+            java.io.File carpeta = new java.io.File(candidato);
+            if (carpeta.exists() && carpeta.isDirectory()) {
+                return candidato;
+            }
+        }
+        // Ninguna carpeta de escritorio encontrada: usar la carpeta de usuario
+        return home;
+    }
+    
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
+          FrameDescripcion ventanaIntermedio = new FrameDescripcion();
+          ventanaIntermedio.setVisible(true);
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        String datos= "";
+        
+        ArbolAgenteIA arbol = new ArbolAgenteIA();
+        datos = jTextField1.getText();
+        Nodo arbolExpresiones = arbol.crear(datos);
+        jTextReglasSemanticas.append(arbol.getReglasEjecutadas());
+        
+        JFrame ventana = new JFrame("Visualizardor de Arboles - LyA2");
+        PanelArbol panel = new PanelArbol(arbolExpresiones, arbol.tablaSimbolos);  
+        
+        ventana.add(panel);
+        ventana.setSize(600, 400);
+        ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ventana.setLocationRelativeTo(null);//Centrar en pantalla
+        ventana.setVisible(true);
+        
+        preOrden(arbolExpresiones);
+        inOrden(arbolExpresiones);
+        postOrden(arbolExpresiones);
+        
+        intermedio(arbolExpresiones);
+        jTextTresDirecciones.append(arbolExpresiones.getCodigoIntermedio());
+
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // TODO add your handling code here:
+        String urlVideo = "https://youtu.be/90Y3tJh0Pxc"; // <-- reemplaza con tu URL real
+
+    try {
+        if (java.awt.Desktop.isDesktopSupported()) {
+            java.awt.Desktop.getDesktop().browse(new java.net.URI(urlVideo));
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Tu sistema no soporta abrir el navegador automáticamente.",
+                    "No soportado",
+                    JOptionPane.WARNING_MESSAGE);
+        }
+    } catch (java.io.IOException | java.net.URISyntaxException e) {
+        JOptionPane.showMessageDialog(this,
+                "No se pudo abrir el video: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        // TODO add your handling code here:
+        cuadruplos = new FrameCuadruplos(arbolExpresiones);
+        cuadruplos.setVisible(true);
+    }//GEN-LAST:event_jButton7ActionPerformed
+    /**
+     * Recorre el arbol y recolecta los identificadores (hojas que son
+     * letras, no operadores) para poder solicitar su valor.
+     */
+     private void obtenerIdentificadores(Nodo nodo, Set<String> identificadores) {
+        if (nodo == null) return;
+
+        boolean esHoja = (nodo.getIzquierdo() == null && nodo.getDerecho() == null);
+        String dato = nodo.getDato();
+        if (esHoja && dato != null && dato.length() >= 1 && Character.isLetter(dato.charAt(0))) {
+            identificadores.add(dato);
+        }
+
+        obtenerIdentificadores(nodo.getIzquierdo(), identificadores);
+        obtenerIdentificadores(nodo.getDerecho(), identificadores);
+    }
+
+    private double evaluarArbol(Nodo nodo, java.util.HashMap<String, String> tabla) {
+        if (nodo == null) return 0;
+
+        boolean esHoja = (nodo.getIzquierdo() == null && nodo.getDerecho() == null);
+        if (esHoja) {
+            String dato = nodo.getDato();
+            String valorTexto = tabla.get(dato);
+            if (valorTexto != null) {
+                try {
+                    return Double.parseDouble(valorTexto);
+                } catch (NumberFormatException e) {
+                    return 0;
+                }
+            }
+            try {
+                return Double.parseDouble(dato);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+
+        double primerOperando  = evaluarArbol(nodo.getDerecho(), tabla);
+        double segundoOperando = evaluarArbol(nodo.getIzquierdo(), tabla);
+        String operador = nodo.getDato();
+
+        switch (operador) {
+            case "+": return primerOperando + segundoOperando;
+            case "-": return primerOperando - segundoOperando;
+            case "*": return primerOperando * segundoOperando;
+            case "/":
+                if (segundoOperando == 0) {
+                    JOptionPane.showMessageDialog(this,
+                            "Division entre cero detectada.",
+                            "Error semantico",
+                            JOptionPane.WARNING_MESSAGE);
+                    return 0;
+                }
+                return primerOperando / segundoOperando;
+            case "^": return Math.pow(primerOperando, segundoOperando);
+            default: return 0;
+        }
+    }
 
     /**
      * @param args the command line arguments
@@ -370,6 +635,9 @@ public class Frrameinterfaz extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel12;
@@ -381,6 +649,7 @@ public class Frrameinterfaz extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JTextField jNotacionPolaca;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -389,12 +658,11 @@ public class Frrameinterfaz extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextArea jTextArea2;
-    private javax.swing.JTextArea jTextArea3;
-    private javax.swing.JTextArea jTextArea4;
-    private javax.swing.JTextArea jTextArea5;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextArea jTextInOrden;
+    private javax.swing.JTextArea jTextPostOrden;
+    private javax.swing.JTextArea jTextPreOrden;
+    private javax.swing.JTextArea jTextReglasSemanticas;
+    private javax.swing.JTextArea jTextTresDirecciones;
     // End of variables declaration//GEN-END:variables
 }

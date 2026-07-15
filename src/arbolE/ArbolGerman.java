@@ -23,6 +23,7 @@ public class ArbolGerman {
     // OPTIMIZACIÓN: cambiadas a constantes (final) — no cambian entre ejecuciones
     final String espacios    = "\t ";
     final String aritmeticos = "+-*()^=/";
+    String r="r";
 
     // ── Raíz y estructuras de soporte ─────────────────────────────────────────
     private Nodo raiz;
@@ -76,22 +77,18 @@ public class ArbolGerman {
      */
     public void guardar() {
         paso++;
-
+        r = "r" + paso;
         // OPTIMIZACIÓN: eliminada variable 'operador' redundante;
         // se obtiene el operador directamente con peek() antes de pop()
         Nodo izquierdo = arbolNodo.pop();
         Nodo derecho   = arbolNodo.pop();
-        String op      = caracter.pop();
+        String operador      = caracter.pop();
 
-        arbolNodo.push(new Nodo(derecho, op, izquierdo));
+        arbolNodo.push(new Nodo(derecho, operador, izquierdo));
 
         // OPTIMIZACIÓN: switch en lugar de 4 if independientes
-        switch (op) {
-            case "+": reglasEjecutadas.add("p" + paso + " E.nodo = new Nodo(+,El.nodo, T.nodo)"); break;
-            case "-": reglasEjecutadas.add("p" + paso + " E.nodo = new Nodo(-,El.nodo, T.nodo)"); break;
-            case "*": reglasEjecutadas.add("p" + paso + " E.nodo = new Nodo(*,El.nodo, T.nodo)"); break;
-            case "/": reglasEjecutadas.add("p" + paso + " E.nodo = new Nodo(/,El.nodo, T.nodo)"); break;
-        }
+        String reglaE = "E.nodo = new Nodo(" + operador + ", E1.nodo, T.nodo";
+        reglasEjecutadas.add("p" + paso + " " + reglaE);
     }
 
     // ── MÉTODO CREAR (optimizado) ─────────────────────────────────────────────

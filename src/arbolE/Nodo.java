@@ -82,5 +82,9 @@ public class Nodo {
     public void setLugar(String lugar) {
         this.lugar = lugar;
     }
+
+    String getValor() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
   
 }
