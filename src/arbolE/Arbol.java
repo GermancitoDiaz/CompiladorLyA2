@@ -34,6 +34,8 @@ public class Arbol {
     
     //01 Julio
     ArrayList <String> reglasEjecutadas;
+    
+    
     //constructor
     public Arbol(){
         reglasEjecutadas = new ArrayList <String>();

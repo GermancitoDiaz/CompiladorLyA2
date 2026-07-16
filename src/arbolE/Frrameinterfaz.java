@@ -3,14 +3,20 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package arbolE;
-
+ 
 import java.awt.Image;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
+import static javax.swing.JOptionPane.showMessageDialog;
+ 
 /**
  *
  * @author thege
@@ -25,16 +31,50 @@ public class Frrameinterfaz extends javax.swing.JFrame {
     String nPolaca;
     int temp;
     FrameCuadruplos cuadruplos;
+    String izquierdo,derecho;
+    String emuLocal;
+    int contador = 0;
+    Nodo ultimoArbolExpresion;      // NUEVO: guarda el ultimo arbol compilado
+    ArbolAgenteIA ultimoArbolAgente; // NUEVO: guarda el ultimo agente usado (para su tablaSimbolos)
+    
     public void inOrden(Nodo n){
         if(n!=null){
             inOrden(n.getDerecho());
             jTextInOrden.append(n.getDato()+"\n");
-            
             inOrden(n.getIzquierdo());
+            
+            
+            switch(n.getDato()){
+                case "+": 
+                    System.out.println("ADD-DIAZ GERMAN");
+                    izquierdo=n.getIzquierdo().getDato();
+                    derecho=n.getDerecho().getDato();
+                    
+                    System.out.println("izq:" + izquierdo);
+                    System.out.println("der:" + derecho);
+                    emuLocal += "MOV AX, "+n.getIzquierdo().getDato()+"\n";
+                    emuLocal += "MOV BX, "+n.getDerecho().getDato()+"\n";
+                    emuLocal += "ADD AX,BX"+"\n\n";
+                break;
+                case "-":
+                    izquierdo=n.getIzquierdo().getDato();
+                    derecho=n.getDerecho().getDato();
+                    System.out.println("SUB");
+                break;
+                case "/": 
+                    izquierdo=n.getIzquierdo().getDato();
+                    derecho=n.getDerecho().getDato();
+                    System.out.println("DIV");
+                break;
+                case "*": 
+                    izquierdo=n.getIzquierdo().getDato();
+                    derecho=n.getDerecho().getDato();
+                    System.out.println("MUL");
+            }//FIN SWITCH
         }
     }
     
-    public void preOrden(Nodo n){
+     public void preOrden(Nodo n){
         if (n!=null) {
            jTextPreOrden.append(n.getDato()+"\n");
            nPolaca += jNotacionPolaca.getText()+ n.getDato()+" ";
@@ -45,21 +85,7 @@ public class Frrameinterfaz extends javax.swing.JFrame {
  
         }
     }
-    
-    PanelGrafo panel = new PanelGrafo(
-    Arbol.convertirAGAD(arbolExpresion),
-    colorNodo,
-    radioNodo,
-    colorLinea,
-    grosorLinea
-    );
-
-    ventana.add(panel);
-    ventana.setSize(600, 400);
-    ventana.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    ventana.setLocationRelativeTo(null); // Centrar en pantalla
-    ventana.setVisible(true);
-    
+   
     public void postOrden(Nodo n){
         if(n!=null){
             postOrden(n.getDerecho());
@@ -70,26 +96,76 @@ public class Frrameinterfaz extends javax.swing.JFrame {
     
     public Frrameinterfaz() {
     initComponents();
+    izquierdo="";
+    derecho="";
+    emuLocal="";   // NUEVO: evita que la primera concatenacion arrastre "null"
+    nPolaca="";    // NUEVO: idem para la notacion polaca
+    
     
     // Imagen 1
     ImageIcon icono = new ImageIcon(getClass().getResource("/Imagenes/escudo_itt_grande.png"));
     Image imagen = icono.getImage();
     Image imagenEscalada = imagen.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
     jLabel9.setIcon(new ImageIcon(imagenEscalada));
-
+ 
     // Imagen 2
     ImageIcon icono2 = new ImageIcon(getClass().getResource("/Imagenes/personal.png"));
     Image imagen2 = icono2.getImage();
     Image imagenEscalada2 = imagen2.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
     jLabel10.setIcon(new ImageIcon(imagenEscalada2));
     
-
+ 
     // Imagen 3
     ImageIcon icono3 = new ImageIcon(getClass().getResource("/Imagenes/logohorafix.png"));
     Image imagen3 = icono3.getImage();
     Image imagenEscalada3 = imagen3.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
     jLabel12.setIcon(new ImageIcon(imagenEscalada3));
     }
+   
+   public void generarEmutasm(String emu, int i){
+       File archivo = new File("e"+i+".asm");
+       try{
+           FileWriter escritor = new FileWriter(archivo);
+           escritor.write(emu);
+           escritor.close();
+           System.out.println("Archivo creado exitosamente");
+       }catch(Exception e){
+           System.out.println("Ha ocurrido un error al crear el archivo");
+           return;
+       }
+ 
+       // NUEVO: abrir el archivo recien creado con el programa predeterminado
+       try {
+           if (java.awt.Desktop.isDesktopSupported()
+                   && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.OPEN)) {
+               java.awt.Desktop.getDesktop().open(archivo);
+           } else {
+               System.out.println("Este sistema no soporta abrir archivos automaticamente.");
+           }
+       } catch (java.io.IOException ex) {
+           System.out.println("No se pudo abrir el archivo " + archivo.getName() + ": " + ex.getMessage());
+       }
+   }//generarEmutasm
+   
+   public void Sonido(){
+       //sonido
+                try {
+                    // CORREGIDO: ruta relativa al proyecto en vez de ruta absoluta
+                    // fija de una sola computadora (antes: "C:\\LyA II\\...")
+                    File sonido = new File("src" + File.separator + "arbolE"
+                            + File.separator + "new-notification-022-370046.wav");
+                    if (sonido.exists()) {
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(sonido);
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+                        clip.start(); 
+                    } else {
+                        System.out.println("No se encontró el archivo de sonido en: " + sonido.getAbsolutePath());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+   }
     
    public void intermedio(Nodo n){
       if(n!=null){
@@ -315,10 +391,12 @@ public class Frrameinterfaz extends javax.swing.JFrame {
         jButton3.setBackground(new java.awt.Color(255, 102, 0));
         jButton3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jButton3.setText("CLEAN");
+        jButton3.addActionListener(this::jButton3ActionPerformed);
 
         jButton4.setBackground(new java.awt.Color(255, 102, 0));
         jButton4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jButton4.setText("TABLA DE SIMBOLOS");
+        jButton4.addActionListener(this::jButton4ActionPerformed);
 
         jButton7.setBackground(new java.awt.Color(255, 102, 0));
         jButton7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -435,7 +513,7 @@ public class Frrameinterfaz extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        String datos = jTextField1.getText().trim();
+         String datos = jTextField1.getText().trim();
  
         if (datos.isEmpty()) {
             jTextReglasSemanticas.setText("⚠ Ingresa una expresión antes de compilar.");
@@ -498,30 +576,87 @@ public class Frrameinterfaz extends javax.swing.JFrame {
         ArbolAgenteIA arbol = new ArbolAgenteIA();
         datos = jTextField1.getText();
         Nodo arbolExpresiones = arbol.crear(datos);
+ 
+        // Limpiar resultados de una corrida anterior antes de mostrar los nuevos
+        jTextReglasSemanticas.setText("");
+        jTextPreOrden.setText("");
+        jTextInOrden.setText("");
+        jTextPostOrden.setText("");
+        jTextTresDirecciones.setText("");
+        jNotacionPolaca.setText("");
+        nPolaca = "";
+        emuLocal = "";
+        temp = 0;
+ 
         jTextReglasSemanticas.append(arbol.getReglasEjecutadas());
+ 
+        // 1. Solicitar el valor para cada token identificador (id)
+        Set<String> identificadores = new LinkedHashSet<>();
+        obtenerIdentificadores(arbolExpresiones, identificadores);
+ 
+        for (String id : identificadores) {
+            String valor = JOptionPane.showInputDialog(this,
+                    "Ingrese el valor para \"" + id + "\":",
+                    "Valor de " + id,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (valor != null && !valor.trim().isEmpty()) {
+                // 2. Insertar en tabla de simbolos
+                arbol.agregaValex(id, valor.trim());
+            }
+        }
+ 
+        // 3. Mostrar en consola al finalizar la tablaSimbolos
+        System.out.println("=== Tabla de Simbolos ===");
+        for (String id : identificadores) {
+            System.out.println("id: \"" + id + "\"  valor: \"" + arbol.regresaValex(id) + "\"");
+        }
+ 
+        // Guardar referencias para que otros botones (Cuadruplos, Tabla de
+        // Simbolos) puedan reutilizar este mismo arbol/agente ya calculado
+        ultimoArbolExpresion = arbolExpresiones;
+        ultimoArbolAgente = arbol;
         
         JFrame ventana = new JFrame("Visualizardor de Arboles - LyA2");
         PanelArbol panel = new PanelArbol(arbolExpresiones, arbol.tablaSimbolos);  
         
         ventana.add(panel);
         ventana.setSize(600, 400);
-        ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+ 
+        // d. ON CLOSE: solo cierra ESTA ventana (dispose), NO todo el proyecto
+        ventana.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        ventana.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                ventana.dispose();
+            }
+        });
         ventana.setLocationRelativeTo(null);//Centrar en pantalla
         ventana.setVisible(true);
         
         preOrden(arbolExpresiones);
         inOrden(arbolExpresiones);
         postOrden(arbolExpresiones);
+        arbol.emu86+=".CODE \n"+
+                     "MOV AX, @DATA \n"+
+                     "MOV DS,AX \n";
+        String finalEmu=arbol.emu86+this.emuLocal;
+        finalEmu+="\n MOV AX, 4c00h \n"+
+                  "INT 21H \n END";
+        
+        showMessageDialog(null,finalEmu);
         
         intermedio(arbolExpresiones);
         jTextTresDirecciones.append(arbolExpresiones.getCodigoIntermedio());
-
+        
+        contador++;
+        generarEmutasm(finalEmu, contador);
+        Sonido();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
         String urlVideo = "https://youtu.be/90Y3tJh0Pxc"; // <-- reemplaza con tu URL real
-
+ 
     try {
         if (java.awt.Desktop.isDesktopSupported()) {
             java.awt.Desktop.getDesktop().browse(new java.net.URI(urlVideo));
@@ -541,29 +676,72 @@ public class Frrameinterfaz extends javax.swing.JFrame {
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // TODO add your handling code here:
-        cuadruplos = new FrameCuadruplos(arbolExpresiones);
+        if (ultimoArbolExpresion == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Primero compila una expresión con el botón \"Agente IA\".",
+                    "Sin árbol generado",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        cuadruplos = new FrameCuadruplos(ultimoArbolExpresion);
         cuadruplos.setVisible(true);
     }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        jTextField1.setText("");
+        jTextPreOrden.setText("");
+        jTextInOrden.setText("");
+        jTextPostOrden.setText("");
+        jTextReglasSemanticas.setText("");
+        jTextTresDirecciones.setText("");
+        jNotacionPolaca.setText("");
+        nPolaca = "";
+        emuLocal = "";
+        temp = 0;
+        ultimoArbolExpresion = null;
+        ultimoArbolAgente = null;
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        if (ultimoArbolAgente == null || ultimoArbolAgente.tablaSimbolos.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Todavía no hay valores en la tabla de símbolos.\n"
+                    + "Compila una expresión con \"Agente IA\" primero.",
+                    "Tabla de símbolos vacía",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-10s %-10s%n", "id", "valor"));
+        sb.append("----------------------\n");
+        for (String id : ultimoArbolAgente.tablaSimbolos.keySet()) {
+            sb.append(String.format("%-10s %-10s%n", id, ultimoArbolAgente.tablaSimbolos.get(id)));
+        }
+        JOptionPane.showMessageDialog(this, sb.toString(),
+                "Tabla de Símbolos", JOptionPane.PLAIN_MESSAGE);
+    }//GEN-LAST:event_jButton4ActionPerformed
     /**
      * Recorre el arbol y recolecta los identificadores (hojas que son
      * letras, no operadores) para poder solicitar su valor.
      */
      private void obtenerIdentificadores(Nodo nodo, Set<String> identificadores) {
         if (nodo == null) return;
-
+ 
         boolean esHoja = (nodo.getIzquierdo() == null && nodo.getDerecho() == null);
         String dato = nodo.getDato();
         if (esHoja && dato != null && dato.length() >= 1 && Character.isLetter(dato.charAt(0))) {
             identificadores.add(dato);
         }
-
+ 
         obtenerIdentificadores(nodo.getIzquierdo(), identificadores);
         obtenerIdentificadores(nodo.getDerecho(), identificadores);
     }
-
+ 
     private double evaluarArbol(Nodo nodo, java.util.HashMap<String, String> tabla) {
         if (nodo == null) return 0;
-
+ 
         boolean esHoja = (nodo.getIzquierdo() == null && nodo.getDerecho() == null);
         if (esHoja) {
             String dato = nodo.getDato();
@@ -581,11 +759,11 @@ public class Frrameinterfaz extends javax.swing.JFrame {
                 return 0;
             }
         }
-
+ 
         double primerOperando  = evaluarArbol(nodo.getDerecho(), tabla);
         double segundoOperando = evaluarArbol(nodo.getIzquierdo(), tabla);
         String operador = nodo.getDato();
-
+ 
         switch (operador) {
             case "+": return primerOperando + segundoOperando;
             case "-": return primerOperando - segundoOperando;
@@ -627,7 +805,16 @@ public class Frrameinterfaz extends javax.swing.JFrame {
 
         /* Create and display the form */
         //java.awt.EventQueue.invokeLater(() -> new Frrameinterfaz().setVisible(true));
-        
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

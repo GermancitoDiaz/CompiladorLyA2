@@ -1,0 +1,17 @@
+;DIAZ GERMAN 
+.MODEL SMALL 
+.STACK 
+.DATA 
+a dw   
+ b dw   
+ .CODE 
+MOV AX, @DATA 
+MOV DS,AX 
+MOV AX, b
+MOV BX, a
+ADD AX,BX
+
+
+ MOV AX, 4c00h 
+INT 21H 
+ END

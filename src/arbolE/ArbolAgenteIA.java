@@ -17,8 +17,13 @@ import java.util.StringTokenizer;
  *
  * @author thege
  */
+
+
+
 public class ArbolAgenteIA {
     //Atributos
+    public String emu86;
+
     Stack<Nodo> arbolNodo;
     Stack<String> caracter;
     //Identificar entre Operador y Operandos
@@ -36,15 +41,14 @@ public class ArbolAgenteIA {
     HashMap<String, String> erroresSemanticos;
     HashMap<String, String> producciones;
     int paso;
-    
-    frameTripletas = new FrameTripletas(a.getTripletas());
-    frameTripletas.setVisible(true);
-    
-    
     //01 Julio
     ArrayList <String> reglasEjecutadas;
     //constructor
     public ArbolAgenteIA(){
+        emu86 = ";DIAZ GERMAN \n" +
+                ".MODEL SMALL \n" +
+                ".STACK \n" +
+                ".DATA \n" ;
         reglasEjecutadas = new ArrayList <String>();
         tablaSimbolos = new HashMap();
         erroresSemanticos = new HashMap();
@@ -95,6 +99,7 @@ public class ArbolAgenteIA {
         //1. Considerar la expresion como un conjunto de tokens
         StringTokenizer tokenizer;
         String token;
+        String valor=" ";
         //0. Inicializar valores para varias ejecuciones
         paso=0;//Paso de las reglas semanticas  
         reglaSemantica = ""; r ="";
@@ -110,6 +115,7 @@ public class ArbolAgenteIA {
            //no es un operador aritmetico
                 //6. Extraer de la pila los terminos que estaban
                 arbolNodo.push(new Nodo(token));
+                emu86+=token+" dw "+valor+" \n ";
                 paso++;
                 String regla ="T.nodo = new Hoja(id<"+token+">,id.entrada_"+token+")";
                 reglasEjecutadas.add("p"+paso+""+regla);
